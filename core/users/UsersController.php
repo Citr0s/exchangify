@@ -4,6 +4,6 @@ class UsersController
 {
     public function __construct()
     {
-        var_dump('Hello World from a controller!');
+        var_dump('Hello World from a Controller!');
     }
 }
