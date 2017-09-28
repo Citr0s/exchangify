@@ -2,25 +2,32 @@
 
 class RouterService
 {
-    public static function invoke($request, $method)
+    private $routes;
+    private $request;
+    private $method;
+
+    public function __construct($request, $method)
     {
-        if (!array_key_exists(0, $request) || ($request[0] === 'web' && ($method === 'GET'))) {
-            echo 'Hello World!';
-            return;
-        }
+        $this->routes = [];
+        $this->request = $request;
+        $this->method = $method;
+    }
 
-        if ($request[0] === 'api' && ($method === 'POST')) {
-            unset($request[0]);
-            $request = array_values($request);
+    public function subscribe($name, $method, $controller)
+    {
+        $route = new Route();
+        $route->name = $name;
+        $route->method = $method;
+        $route->controller = $controller;
 
-            if ($request[0] === 'log') {
-                unset($request[0]);
-                $request = array_values($request);
+        array_push($this->routes, $route);
+    }
 
-                //$logger = new LogService(new LogRepository(new DatabaseService()));
-                //$logger->invoke($request[0], file_get_contents('php://input'));
-                return;
-            }
+    public function notify()
+    {
+        foreach ($this->routes as $route) {
+            if ($route->name === implode('/', $this->request) && $route->method === $this->method)
+                return new $route->controller;
         }
 
         header("HTTP/1.0 404 Not Found");
